@@ -38,13 +38,13 @@ First run =aio-enum.sh=
 sudo ./aio-enum.sh
 #+END_SRC
 
-Next populate the =targets.txt= file
+Next populate the =targets.ip= file
 
 #+BEGIN_SRC shell :results silent
 echo "192.168.100.0/24" >> targets.ip
 #+END_SRC
 
-Next populate the =exclude.txt= file
+Next populate the =exclude.ip= file
 
 #+BEGIN_SRC shell :results silent
 echo "192.168.100.5" >> exclude.ip
