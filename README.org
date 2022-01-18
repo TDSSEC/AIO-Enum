@@ -1,6 +1,8 @@
 * What is this? 
 Another Pen Testing Enumeration Tool!
 
+Rewrite of https://gitlab.com/foresitelabs/auto_enum/
+
 *Your IP Address*
 - List your source IP(s) before any scanning takes place
 
@@ -65,7 +67,6 @@ Third     port range
 #+BEGIN_SRC shell :results silent
 ./aio-enum.sh
 #+END_SRC
-#+html: <p align="center"><img src="./aio-enum.png" /></p>
 *** Menu
 After speeds have been set, you will be presented with a menu. Choose an option to continue.
 
