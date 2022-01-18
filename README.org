@@ -1,0 +1,87 @@
+* What is this? 
+Another Pen Testing Enumeration Tool!
+
+*Your IP Address*
+- List your source IP(s) before any scanning takes place
+
+*NetSec*
+- Enumeration of IPs and domain names to find ports and services
+- Nmap Scanning Engine (NSE) scripts to further enumerate services for common issues
+- Output into files that are easily parsed
+
+*Web Applications*
+- Performs directory/page discovery using dirsearch
+- Lists information about the webserver in use
+
+*Summaries*
+- List how many IPs and unique ports/services were discovered
+
+* Prerequisites
+This script utilizes the following tools and will not run unless they are installed.
+#+BEGIN_SRC 
+masscan
+dig
+curl
+nmap
+ike-scan
+nbtscan
+wfuzz
+dirsearch
+#+END_SRC
+
+* Setup
+First run =aio-enum.sh=
+
+#+BEGIN_SRC shell :results silent
+sudo ./aio-enum.sh
+#+END_SRC
+
+Next populate the =targets.txt= file
+
+#+BEGIN_SRC shell :results silent
+echo "192.168.100.0/24" >> targets.ip
+#+END_SRC
+
+Next populate the =exclude.txt= file
+
+#+BEGIN_SRC shell :results silent
+echo "192.168.100.5" >> exclude.ip
+#+END_SRC
+
+* Usage
+*** Option (1): Setting your own scan speeds
+#+BEGIN_SRC shell :results silent
+sudo bash ./aio-enum.sh 50 500 1-1024
+#+END_SRC
+
+Arguments:
+#+BEGIN_SRC 
+First     min-host nmap
+Second    min-rate nmap
+Third     port range
+#+END_SRC
+
+*** Option (2): Running with the default speeds
+#+BEGIN_SRC shell :results silent
+./aio-enum.sh
+#+END_SRC
+
+*** Menu
+After speeds have been set, you will be presented with a menu. Choose an option to continue.
+
+#+BEGIN_SRC 
+[1] Continue Default Scans (Masscan, Nmap and Nse's)? 
+[2] Run everything including dictionary attacks? 
+[3] No masscan or dictionary attacks 
+Choose an option: 
+#+END_SRC
+
+**** Menu Option 1
+This will use Masscan, performing a dns resolution and completing a port scan. It will then run nmap, performing a ping sweep and port scan.
+The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports.
+
+**** Menu Option 2
+This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize ==dirb== to enumerate active directories/pages based off of a word list.
+
+**** Menu Option 3
+This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks.
