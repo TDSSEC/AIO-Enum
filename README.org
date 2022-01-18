@@ -61,6 +61,7 @@ Second    min-rate nmap
 Third     port range
 #+END_SRC
 
+#+html: <p align="center"><img src="./aio-enum.png" /></p>
 *** Option (2): Running with the default speeds
 #+BEGIN_SRC shell :results silent
 ./aio-enum.sh
@@ -81,7 +82,7 @@ This will use Masscan, performing a dns resolution and completing a port scan. I
 The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports.
 
 **** Menu Option 2
-This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize ==dirb== to enumerate active directories/pages based off of a word list.
+This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list.
 
 **** Menu Option 3
 This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks.
