@@ -10,7 +10,7 @@ Another Pen Testing Enumeration Tool!
 - Output into files that are easily parsed
 
 *Web Applications*
-- Performs directory/page discovery using dirsearch
+- Performs directory/page discovery using =dirb=
 - Lists information about the webserver in use
 
 *Summaries*
@@ -26,7 +26,7 @@ nmap
 ike-scan
 nbtscan
 wfuzz
-dirsearch
+dirb
 #+END_SRC
 
 * Setup
@@ -61,12 +61,11 @@ Second    min-rate nmap
 Third     port range
 #+END_SRC
 
-#+html: <p align="center"><img src="./aio-enum.png" /></p>
 *** Option (2): Running with the default speeds
 #+BEGIN_SRC shell :results silent
 ./aio-enum.sh
 #+END_SRC
-
+#+html: <p align="center"><img src="./aio-enum.png" /></p>
 *** Menu
 After speeds have been set, you will be presented with a menu. Choose an option to continue.
 
@@ -76,13 +75,8 @@ After speeds have been set, you will be presented with a menu. Choose an option 
 [3] No masscan or dictionary attacks 
 Choose an option: 
 #+END_SRC
-
-**** Menu Option 1
-This will use Masscan, performing a dns resolution and completing a port scan. It will then run nmap, performing a ping sweep and port scan.
-The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports.
-
-**** Menu Option 2
-This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list.
-
-**** Menu Option 3
-This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks.
+|              Option | Usage            | Detail                           |
+|-----------------+----------------------------+------------------------------------|
+|  1 | Default Scans                   |  This will use =masscan=, performing a dns resolution and completing a port scan. It will then run =nmap=, performing a pingsweep and port scan. The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports. |
+|  2 | Default + Dictionary Attacks    |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list. |
+|  3 | Quick Nmap Scan                 |  This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
