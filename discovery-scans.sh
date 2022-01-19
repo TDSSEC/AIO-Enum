@@ -42,6 +42,16 @@ pingSweep(){
     grep "Up" nmap/scans/PingSweep.gnmap | cut -d " " -f2 | sort -u > nmap/alive.ip
 }
 
+# regardless of host being 'Up' from a pingsweep, run a portscan of all targets
+nmapAllHostsPortScan(){
+    echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap port scan${RESET} for all ip in nmap/alive.ip"
+    nmap --open -iL targets.ip \
+         -sU -sS -sV -O -Pn -n -oA nmap/scans/portscan -v \
+         -p T:$PORTRANGE,U:53,69,123,161,500,1434 \
+         --min-hostgroup $MINHOST --min-rate=$MINRATE
+}
+
+#only scan targets that responded to an ICMP pingsweep
 nmapPortScan(){
     echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap port scan${RESET} for all ip in nmap/alive.ip"
     nmap --open -iL nmap/alive.ip \
