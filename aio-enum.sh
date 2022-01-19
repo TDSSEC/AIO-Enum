@@ -137,19 +137,32 @@ summary(){
     echo -e "\n[${GREEN}+${RESET}] there are $(cat ./alive.ip | wc -l ) ${YELLOW}alive hosts${RESET} and $(egrep -o '[0-9]*/open/' scans/*.gnmap | cut -d ':' -f 2 | sort | uniq | wc -l) ${YELLOW}unique ports/services${RESET}" | tee -a discovered_ports.txt
 }
 
+summaryPingSweep(){
+    echo -e "\n[${GREEN}+${RESET}] ${YELLOW}There are $(cat nmap/alive.ip | wc -l ) alive hosts${RESET}"
+    echo -e "To see the hosts, copy and paste this command:"
+    echo -e "cat nmap/alive.ip | sort -u"
+}
 
 menuChoice(){
     read -p "Choose an option: " choice
     case "$choice" in
-  	1 ) echo "[1] selected, identifying alive IPs and ports only"
+  	1 ) echo "[1] selected, running a PingSweep and Portscan on all targets"
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
-	    nmapPortScan
+	    nmapAllHostsPortScan
 	    combiner
 	    parser
 	    summary;;
-	2 ) echo "[2] selected, running -- Masscan|Nmap|NSEs"
+	2 ) echo "[2] selected, running Portscans on hosts that reply to ICMP"
+            masscanResolver
+            massscanPortScan
+            pingSweep
+            nmapPortScan
+            combiner
+            parser
+            summary;;
+	3 ) echo "[3] selected, running -- Masscan|Nmap|NSEs"
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -159,7 +172,7 @@ menuChoice(){
 	    nse
 	    otherScans
 	    summary;;
-	3 ) echo "[3] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
+	4 ) echo "[4] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -170,7 +183,7 @@ menuChoice(){
 	    otherScans
 	    discoveryScans # for dictionary attacks
 	    summary;;
-	4 ) echo "[4] selected, running -- Nmap|NSEs"
+	5 ) echo "[5] selected, running -- Nmap|NSEs"
 	    pingSweep
 	    nmapPortScan
 	    combiner
@@ -178,6 +191,9 @@ menuChoice(){
 	    nse
 	    otherScans
 	    summary;;
+	6 ) echo "[6] nmap pingsweep only"
+	    pingSweep
+	    summaryPingSweep;;
 	* ) echo "[!] Incorrect choice - Quitting!"
 	    exit 1;;
     esac
@@ -194,10 +210,12 @@ then
     echo -e "Defaulting to ALL TCP ports and UDP ports 53,69,123,161,500,1434\n"
     echo -e "Usage Example: sudo bash ./aio-enum.sh 50 500 1-1024"
     echo -e "./autoenum.sh [Nmap min hostgroup] [Nmap min rate] [Port range]\n"
-    echo -e "[1] Identify Alive IPs and Ports only "
-    echo -e "[2] Default Scans (Masscan, Nmap and NSE scripts) "
-    echo -e "[3] Default Scans + web applications dir/page enumeration "
-    echo -e "[4] Nmap pingsweep, portscan and NSE scripts only "
+    echo -e "[1] Scan All targets to see replies via ICMP and Ports "
+    echo -e "[2] Portscan only the targets that reply to ICMP "
+    echo -e "[3] Default Scans (Masscan, Nmap and NSE scripts) "
+    echo -e "[4] Default Scans + web applications dir/page enumeration "
+    echo -e "[5] Nmap pingsweep, portscan and NSE scripts only "
+    echo -e "[6] Nmap pingsweep only"
     menuChoice
 elif (( "$#" == 3 ));
 then
@@ -207,8 +225,10 @@ then
     echo -e "--min-rate: " $2
     echo -e "--port-range: " $3
     echo -e "\n[1] Identify Alive IPs and Ports only "
-    echo -e "[2] Default Scans (Masscan, Nmap and NSE scripts) "
-    echo -e "[3] Default Scans + web applications dir/page enumeration "
-    echo -e "[4] Nmap pingsweep, portscan and NSE scripts only "
+    echo -e "[2] Portscan the IPs that respond to ICMP "
+    echo -e "[3] Default Scans (Masscan, Nmap and NSE scripts) "
+    echo -e "[4] Default Scans + web applications dir/page enumeration "
+    echo -e "[5] Nmap pingsweep, portscan and NSE scripts only "
+    echo -e "[6] Nmap pingsweep only"
     menuChoice 
 fi
