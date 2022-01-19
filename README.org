@@ -54,28 +54,29 @@ echo "192.168.100.5" >> exclude.ip
 
 * Usage
 *** Running with the default settings:
-By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports 53,69,123,161,500,1434.
+By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports =53,69,123,161,500,1434=.
 #+BEGIN_SRC shell :results silent
 ./aio-enum.sh
 #+END_SRC
 
-*** Setting your own scan speeds and TCP ports:
-By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports 53,69,123,161,500,1434.
-
-You can change the number of TCP ports as shown below:
+*** Selecting options:
 #+BEGIN_SRC shell :results silent
-sudo bash ./aio-enum.sh 50 500 1-1024
+./aio-enum.sh -h
 #+END_SRC
-
-Arguments:
 #+BEGIN_SRC 
-First     min-host nmap
-Second    min-rate nmap
-Third     port range
+Usage: ./aio-enum.sh [-1|2|3|4|5|6|h|v]
+Options:
+1 | Identify Alive IPs and Ports
+2 | Portscan hosts replying to ICMP
+3 | Masscan, Nmap and Nmap NSE scripts
+4 | Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
+5 | Nmap and NSE scripts - No masscan
+6 | Nmap pingSweep only
+h | Print this help
+v | Print version and exit
 #+END_SRC
 
-
-*** Menu
+*** Detailed Options
 After running the script with/without arguments, you will be presented with a menu. Choose an option to continue.
 
 All options will finish with a summary on the number of alive IP addresses and unique ports that are open!
@@ -85,3 +86,5 @@ All options will finish with a summary on the number of alive IP addresses and u
 |  2 | Default Scans                   |  This will use =masscan=, performing a dns resolution and completing a port scan. It will then run =nmap=, performing a pingsweep and port scan. The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports. |
 |  3 | Default + Dictionary Attacks    |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list. |
 |  4 | Quick Nmap Scan                 |  This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
+|  5 | Nmap & NSE Scripts              |  Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
+|  6 | Nmap pingsweep                  |  Nmap pingsweep only |
