@@ -1,4 +1,31 @@
 #-- scan functions
+# Arguments
+nmapSettings(){
+    PORTANGE=
+    if  [[ -z "$PORTRANGE" ]]; then
+        read -p "[!] Set TCP port range (1-65535): " PORTRANGE
+    fi
+    if [[ -z "$PORTRANGE" ]];
+    then
+        PORTRANGE=1-65535
+    fi
+    MINHOST=
+    if  [[ -z "$MINHOST" ]]; then
+        read -p "[!] Set Nmap value for --min-host (50): " MINHOST
+    fi
+    if [[ -z "$MINHOST" ]];
+    then
+        MINHOST=500
+    fi
+    MINRATE=
+    if  [[ -z "$MINRATE" ]]; then
+        read -p "[!] Set Nmap value for --min-rate (200): " MINRATE
+    fi
+    if [[ -z "$MINRATE" ]];
+    then
+        MINRATE=200
+    fi
+}
 #-- masscan
 masscanResolver(){
     echo -e "\n[${GREEN}+${RESET}] Running ${YELLOW}masscan${RESET} scans"
@@ -39,6 +66,15 @@ pingSweep(){
     echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap ping sweep${RESET} for all ip in targets.ip"
     nmap --open -sn -PE -iL targets.ip \
          -oA nmap/scans/PingSweep --excludefile exclude.ip --min-hostgroup $MINHOST --min-rate=$MINRATE
+    grep "Up" nmap/scans/PingSweep.gnmap | cut -d " " -f2 | sort -u > nmap/alive.ip
+}
+
+# nmap pingsweep with --min-rate & --min-hostgroup pre-configured
+pingSweepDefault(){
+    echo -e "\n[${GREEN}+${RESET}] Running ${YELLOW}nmap${RESET} scans"
+    echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap ping sweep${RESET} for all ip in targets.ip"
+    nmap --open -sn -PE -iL targets.ip \
+         -oA nmap/scans/PingSweep --excludefile exclude.ip --min-hostgroup 50 --min-rate=200
     grep "Up" nmap/scans/PingSweep.gnmap | cut -d " " -f2 | sort -u > nmap/alive.ip
 }
 
