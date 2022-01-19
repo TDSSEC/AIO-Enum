@@ -51,28 +51,9 @@ for folder  in ${folders[*]}
 do
     if [ ! -d "$folder" ]
     then
-	mkdir -p $folder         
+	mkdir -p $folder
     fi
 done
-
-#-- Nmap variables
-MINHOST=$1
-if  [[ -z "$MINHOST" ]]; then
-    MINHOST=50
-fi
-
-MINRATE=$2
-if  [[ -z "$MINRATE" ]]; then
-    MINRATE=500
-fi
-
-#-- port variables
-PORTRANGE=$3
-if  [[ -z "$PORTRANGE" ]]; then
-    PORTRANGE=1-65535
-fi
-MINPORT=$(echo $PORTRANGE | cut -d '-' -f 1)
-MAXPORT=$(echo $PORTRANGE | cut -d '-' -f 2)
 
 # Your IP Address
 ipChecker(){
@@ -139,14 +120,30 @@ summary(){
 
 summaryPingSweep(){
     echo -e "\n[${GREEN}+${RESET}] ${YELLOW}There are $(cat nmap/alive.ip | wc -l ) alive hosts${RESET}"
-    echo -e "To see the hosts, copy and paste this command:"
-    echo -e "cat nmap/alive.ip | sort -u"
 }
 
-menuChoice(){
-    read -p "Choose an option: " choice
-    case "$choice" in
-  	1 ) echo "[1] selected, running a PingSweep and Portscan on all targets"
+#Help
+help(){
+	echo "This script requires 4 arguments a shown below:"
+	echo "Syntax: ./aio-enum.sh [-1|2|3|4|5|6|h|v]"
+	echo "Options: "
+	echo "1     | Identify Alive IPs and Ports"
+	echo "2     | Portscan hosts replying to ICMP"
+	echo "3     | Masscan, Nmap and Nmap NSE scripts"
+	echo "4     | Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
+	echo "5     | Nmap and NSE scripts - No masscan"
+	echo "6     | Nmap pingSweep only"
+	echo "h     | Print this help"
+	echo "v     | Print version and exit"
+}
+
+while getopts ":h123456v" flag; do
+    case "${flag}" in
+	h) #display help
+	    help
+	    exit;;
+	1)  echo "[1] selected, running a PingSweep and Portscan on all targets"
+	    nmapSettings
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -154,15 +151,17 @@ menuChoice(){
 	    combiner
 	    parser
 	    summary;;
-	2 ) echo "[2] selected, running Portscans on hosts that reply to ICMP"
-            masscanResolver
+	2)  echo "[2] selected, running Portscans on hosts that reply to ICMP"
+            nmapSettings
+	    masscanResolver
             massscanPortScan
             pingSweep
             nmapPortScan
             combiner
             parser
             summary;;
-	3 ) echo "[3] selected, running -- Masscan|Nmap|NSEs"
+	3)  echo "[3] selected, running -- Masscan|Nmap|NSEs"
+	    nmapSettings
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -172,7 +171,8 @@ menuChoice(){
 	    nse
 	    otherScans
 	    summary;;
-	4 ) echo "[4] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
+	4)  echo "[4] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
+	    nmapSettings
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -183,7 +183,8 @@ menuChoice(){
 	    otherScans
 	    discoveryScans # for dictionary attacks
 	    summary;;
-	5 ) echo "[5] selected, running -- Nmap|NSEs"
+	5)  echo "[5] selected, running -- Nmap|NSEs"
+	    nmapSettings
 	    pingSweep
 	    nmapPortScan
 	    combiner
@@ -191,44 +192,24 @@ menuChoice(){
 	    nse
 	    otherScans
 	    summary;;
-	6 ) echo "[6] nmap pingsweep only"
+	6)  echo "[6] nmap pingsweep only"
 	    pingSweep
 	    summaryPingSweep;;
-	* ) echo "[!] Incorrect choice - Quitting!"
+	v)  echo "version 1.2"
+	    exit;;
+	*)  echo "Error: Invalid option\n"
 	    exit 1;;
     esac
-}
-
-#Start the script
-if (( "$#" < 3 )); #If not provided the 3 arguments - show usage
-then
-    ipChecker
-    MINHOST=50
-    MINRATE=500
-    PORTRANGE=1-65535
-    echo -e "${RED}[!] Not entered all 3 arguments - Setting default values as shown in the usage example below!"${RESET}
-    echo -e "Defaulting to ALL TCP ports and UDP ports 53,69,123,161,500,1434\n"
-    echo -e "Usage Example: sudo bash ./aio-enum.sh 50 500 1-1024"
-    echo -e "./autoenum.sh [Nmap min hostgroup] [Nmap min rate] [Port range]\n"
-    echo -e "[1] Scan All targets to see replies via ICMP and Ports "
-    echo -e "[2] Portscan only the targets that reply to ICMP "
-    echo -e "[3] Default Scans (Masscan, Nmap and NSE scripts) "
-    echo -e "[4] Default Scans + web applications dir/page enumeration "
-    echo -e "[5] Nmap pingsweep, portscan and NSE scripts only "
-    echo -e "[6] Nmap pingsweep only"
-    menuChoice
-elif (( "$#" == 3 ));
-then
-    ipChecker
-    echo -e "Arguments taken:"
-    echo -e "--min-hostgroup: " $1
-    echo -e "--min-rate: " $2
-    echo -e "--port-range: " $3
-    echo -e "\n[1] Identify Alive IPs and Ports only "
-    echo -e "[2] Portscan the IPs that respond to ICMP "
-    echo -e "[3] Default Scans (Masscan, Nmap and NSE scripts) "
-    echo -e "[4] Default Scans + web applications dir/page enumeration "
-    echo -e "[5] Nmap pingsweep, portscan and NSE scripts only "
-    echo -e "[6] Nmap pingsweep only"
-    menuChoice 
+done
+if [ "$#" == "0" ]; then
+	echo -e "\n[+] No options provided!"
+	echo -e "Executing ICMP pingsweep & portscan..."
+	ipChecker
+	MINHOST=50
+	MINRATE=500
+	PORTRANGE=1-65535
+	pingSweep
+	summaryPingSweep
+	nmapPortScan
+	summary
 fi
