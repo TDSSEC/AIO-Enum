@@ -124,17 +124,16 @@ summaryPingSweep(){
 
 #Help
 help(){
-	echo "This script requires 4 arguments a shown below:"
-	echo "Syntax: ./aio-enum.sh [-1|2|3|4|5|6|h|v]"
+	echo "Usage: ./aio-enum.sh [-1|2|3|4|5|6|h|v]"
 	echo "Options: "
-	echo "1     | Identify Alive IPs and Ports"
-	echo "2     | Portscan hosts replying to ICMP"
-	echo "3     | Masscan, Nmap and Nmap NSE scripts"
-	echo "4     | Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
-	echo "5     | Nmap and NSE scripts - No masscan"
-	echo "6     | Nmap pingSweep only"
-	echo "h     | Print this help"
-	echo "v     | Print version and exit"
+	echo "1 | Identify Alive IPs and Ports"
+	echo "2 | Portscan hosts replying to ICMP"
+	echo "3 | Masscan, Nmap and Nmap NSE scripts"
+	echo "4 | Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
+	echo "5 | Nmap and NSE scripts - No masscan"
+	echo "6 | Nmap pingSweep only"
+	echo "h | Print this help"
+	echo "v | Print version and exit"
 }
 
 while getopts ":h123456v" flag; do
