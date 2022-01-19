@@ -69,7 +69,7 @@ fi
 #-- port variables
 PORTRANGE=$3
 if  [[ -z "$PORTRANGE" ]]; then
-    PORTRANGE=1-1024
+    PORTRANGE=1-65535
 fi
 MINPORT=$(echo $PORTRANGE | cut -d '-' -f 1)
 MAXPORT=$(echo $PORTRANGE | cut -d '-' -f 2)
