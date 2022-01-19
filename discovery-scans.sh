@@ -45,7 +45,7 @@ pingSweep(){
 nmapPortScan(){
     echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap port scan${RESET} for all ip in nmap/alive.ip"
     nmap --open -iL nmap/alive.ip \
-         -sU -sT -sV -O -Pn -n -oA nmap/scans/portscan -v \
+         -sU -sS -sV -O -Pn -n -oA nmap/scans/portscan -v \
          -p T:$PORTRANGE,U:53,69,123,161,500,1434 \
          --min-hostgroup $MINHOST --min-rate=$MINRATE
 }
