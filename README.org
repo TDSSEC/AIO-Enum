@@ -51,7 +51,16 @@ echo "192.168.100.5" >> exclude.ip
 #+END_SRC
 
 * Usage
-*** Option (1): Setting your own scan speeds
+*** Running with the default settings:
+By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports 53,69,123,161,500,1434.
+#+BEGIN_SRC shell :results silent
+./aio-enum.sh
+#+END_SRC
+
+*** Setting your own scan speeds and TCP ports:
+By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports 53,69,123,161,500,1434.
+
+You can change the number of TCP ports as shown below:
 #+BEGIN_SRC shell :results silent
 sudo bash ./aio-enum.sh 50 500 1-1024
 #+END_SRC
@@ -63,21 +72,12 @@ Second    min-rate nmap
 Third     port range
 #+END_SRC
 
-*** Option (2): Running with the default speeds
-#+BEGIN_SRC shell :results silent
-./aio-enum.sh
-#+END_SRC
-*** Menu
-After speeds have been set, you will be presented with a menu. Choose an option to continue.
 
-#+BEGIN_SRC 
-[1] Continue Default Scans (Masscan, Nmap and Nse's)? 
-[2] Run everything including dictionary attacks? 
-[3] No masscan or dictionary attacks 
-Choose an option: 
-#+END_SRC
+*** Menu
+After running the script with/without arguments, you will be presented with a menu. Choose an option to continue.
 |              Option | Usage            | Detail                           |
 |-----------------+----------------------------+------------------------------------|
-|  1 | Default Scans                   |  This will use =masscan=, performing a dns resolution and completing a port scan. It will then run =nmap=, performing a pingsweep and port scan. The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports. |
-|  2 | Default + Dictionary Attacks    |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list. |
-|  3 | Quick Nmap Scan                 |  This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
+|  1 | Alive IPs and Port Enumeration  |  =masscan= and =nmap= are used to perform a pingsweep and portscan. Both tools are parsed to display the no. of Alive IP addresses and no. of open ports. No further probing of open ports is performed!|
+|  2 | Default Scans                   |  This will use =masscan=, performing a dns resolution and completing a port scan. It will then run =nmap=, performing a pingsweep and port scan. The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports. |
+|  3 | Default + Dictionary Attacks    |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list. |
+|  4 | Quick Nmap Scan                 |  This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
