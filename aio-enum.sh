@@ -141,7 +141,15 @@ summary(){
 menuChoice(){
     read -p "Choose an option: " choice
     case "$choice" in
-	1 ) echo "[1] selected, running -- Masscan|Nmap|NSEs"
+  	1 ) echo "[1] selected, identifying alive IPs and ports only"
+	    masscanResolver
+	    massscanPortScan
+	    pingSweep
+	    nmapPortScan
+	    combiner
+	    parser
+	    summary;;
+	2 ) echo "[2] selected, running -- Masscan|Nmap|NSEs"
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -151,7 +159,7 @@ menuChoice(){
 	    nse
 	    otherScans
 	    summary;;
-	2 ) echo "[2] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
+	3 ) echo "[3] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
 	    masscanResolver
 	    massscanPortScan
 	    pingSweep
@@ -162,7 +170,7 @@ menuChoice(){
 	    otherScans
 	    discoveryScans # for dictionary attacks
 	    summary;;
-	3 ) echo "[3] selected, running -- Nmap|NSEs"
+	4 ) echo "[4] selected, running -- Nmap|NSEs"
 	    pingSweep
 	    nmapPortScan
 	    combiner
@@ -181,13 +189,15 @@ then
     ipChecker
     MINHOST=50
     MINRATE=500
-    PORTRANGE=1-1024
+    PORTRANGE=1-65535
     echo -e "${RED}[!] Not entered all 3 arguments - Setting default values as shown in the usage example below!"${RESET}
+    echo -e "Defaulting to ALL TCP ports and UDP ports 53,69,123,161,500,1434\n"
     echo -e "Usage Example: sudo bash ./aio-enum.sh 50 500 1-1024"
     echo -e "./autoenum.sh [Nmap min hostgroup] [Nmap min rate] [Port range]\n"
-    echo -e "[1] Continue Default Scans (Masscan, Nmap and Nse's)? "
-    echo -e "[2] Run everything including dictionary attacks? "
-    echo -e "[3] No masscan or dictionary attacks "
+    echo -e "[1] Identify Alive IPs and Ports only "
+    echo -e "[2] Default Scans (Masscan, Nmap and NSE scripts) "
+    echo -e "[3] Default Scans + web applications dir/page enumeration "
+    echo -e "[4] Nmap pingsweep, portscan and NSE scripts only "
     menuChoice
 elif (( "$#" == 3 ));
 then
@@ -196,8 +206,9 @@ then
     echo -e "--min-hostgroup: " $1
     echo -e "--min-rate: " $2
     echo -e "--port-range: " $3
-    echo -e "\n[1] Continue Default Scans (Masscan, Nmap and Nse's)? "
-    echo -e "[2] Run everything including dictionary attacks? "
-    echo -e "[3] No masscan or dictionary attacks "
+    echo -e "\n[1] Identify Alive IPs and Ports only "
+    echo -e "[2] Default Scans (Masscan, Nmap and NSE scripts) "
+    echo -e "[3] Default Scans + web applications dir/page enumeration "
+    echo -e "[4] Nmap pingsweep, portscan and NSE scripts only "
     menuChoice 
 fi
