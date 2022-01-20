@@ -64,16 +64,16 @@ By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports =53,69,123,161
 ./aio-enum.sh -h
 #+END_SRC
 #+BEGIN_SRC 
-Usage: ./aio-enum.sh [-1|2|3|4|5|6|h|v]
+Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]
 Options:
-1 | --default) Identify Alive IPs and Ports
-2 | --quick)   Portscan hosts replying to ICMP
-3 | --scans)   Masscan, Nmap and Nmap NSE scripts
-4 | --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
-5 | --nmap)    Nmap and NSE scripts - No masscan
-6 | --icmp)    Nmap pingSweep only
-h | --help)    Print this help
-v |            Print version and exit
+-1 | --default) Identify Alive IPs and Ports
+-2 | --quick)   Portscan hosts replying to ICMP
+-3 | --scans)   Masscan, Nmap and Nmap NSE scripts
+-4 | --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
+-5 | --nmap)    Nmap and NSE scripts - No masscan
+-6 | --icmp)    Nmap pingSweep only
+-h | --help)    Print this help
+-v | --version) Print version and exit
 #+END_SRC
 
 *** Detailed Options
