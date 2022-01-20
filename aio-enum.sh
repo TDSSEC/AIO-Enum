@@ -142,6 +142,7 @@ while getopts ":h123456v" flag; do
 	    help
 	    exit;;
 	1)  echo "[1] selected, running a PingSweep and Portscan on all targets"
+	    ipChecker
 	    nmapSettings
 	    masscanResolver
 	    massscanPortScan
@@ -151,7 +152,8 @@ while getopts ":h123456v" flag; do
 	    parser
 	    summary;;
 	2)  echo "[2] selected, running Portscans on hosts that reply to ICMP"
-            nmapSettings
+            ipChecker
+	    nmapSettings
 	    masscanResolver
             massscanPortScan
             pingSweep
@@ -160,6 +162,7 @@ while getopts ":h123456v" flag; do
             parser
             summary;;
 	3)  echo "[3] selected, running -- Masscan|Nmap|NSEs"
+	    ipChecker
 	    nmapSettings
 	    masscanResolver
 	    massscanPortScan
@@ -171,6 +174,7 @@ while getopts ":h123456v" flag; do
 	    otherScans
 	    summary;;
 	4)  echo "[4] selected, running -- Masscan | Nmap | NSEs | Dictionary attacks!"
+	    ipChecker
 	    nmapSettings
 	    masscanResolver
 	    massscanPortScan
@@ -183,6 +187,7 @@ while getopts ":h123456v" flag; do
 	    discoveryScans # for dictionary attacks
 	    summary;;
 	5)  echo "[5] selected, running -- Nmap|NSEs"
+	    ipChecker
 	    nmapSettings
 	    pingSweep
 	    nmapPortScan
@@ -192,11 +197,12 @@ while getopts ":h123456v" flag; do
 	    otherScans
 	    summary;;
 	6)  echo "[6] nmap pingsweep only"
+	    ipChecker
 	    pingSweep
 	    summaryPingSweep;;
 	v)  echo "version 1.2"
 	    exit;;
-	*)  echo "Error: Invalid option\n"
+	*)  echo -e "Error: Invalid option\n"
 	    exit 1;;
     esac
 done
