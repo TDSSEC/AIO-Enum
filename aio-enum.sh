@@ -122,20 +122,39 @@ summaryPingSweep(){
     echo -e "\n[${GREEN}+${RESET}] ${YELLOW}There are $(cat nmap/alive.ip | wc -l ) alive hosts${RESET}"
 }
 
-#Help
+######################## Help
+#help message
 help(){
-	echo "Usage: ./aio-enum.sh [-1|2|3|4|5|6|h|v]"
+	echo "Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]"
 	echo "Options: "
-	echo "1 | Identify Alive IPs and Ports"
-	echo "2 | Portscan hosts replying to ICMP"
-	echo "3 | Masscan, Nmap and Nmap NSE scripts"
-	echo "4 | Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
-	echo "5 | Nmap and NSE scripts - No masscan"
-	echo "6 | Nmap pingSweep only"
-	echo "h | Print this help"
-	echo "v | Print version and exit"
+	echo "-1| --default) Identify Alive IPs and Ports"
+	echo "-2| --quick)   Portscan hosts replying to ICMP"
+	echo "-3| --scans)   Masscan, Nmap and Nmap NSE scripts"
+	echo "-4| --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
+	echo "-5| --nmap)    Nmap and NSE scripts - No masscan"
+	echo "-6| --icmp)    Nmap pingSweep only"
+	echo "-h| --help)    Print this help"
+	echo "-v| --version) Print version and exit"
 }
 
+# Transform long options to short ones (getopts wont parse)
+for arg in "$@"; do
+    shift
+    case "$arg" in
+      "--help") set -- "$@" "-h" ;;
+      "--default") set -- "$@" "-1" ;;
+      "--quick") set -- "$@" "-2" ;;
+      "--scans") set -- "$@" "-3" ;;
+      "--all") set -- "$@" "-4" ;;
+      "--nmap") set -- "$@" "-5" ;;
+      "--icmp") set -- "$@" "-6" ;;
+      "--version") set -- "$@" "-v" ;;
+      *)        set -- "$@" "$arg"
+    esac
+done
+
+OPTIND=1 
+# getopts to parse options
 while getopts ":h123456v" flag; do
     case "${flag}" in
 	h) #display help
@@ -203,9 +222,12 @@ while getopts ":h123456v" flag; do
 	v)  echo "version 1.2"
 	    exit;;
 	*)  echo -e "Error: Invalid option\n"
+	    echo "Usage: ./aio-enum.sh [-h | --help]"
 	    exit 1;;
     esac
 done
+shift $(expr $OPTIND - 1)
+
 if [ "$#" == "0" ]; then
 	echo -e "\n[+] No options provided!"
 	echo -e "Executing ICMP pingsweep & portscan..."
