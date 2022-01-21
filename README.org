@@ -89,10 +89,10 @@ All options will finish with a summary on the number of alive IP addresses and u
 |              Option | Usage            | Detail                           |
 |-----------------+----------------------------+------------------------------------|
 |  1 | Alive IPs and Port Enumeration  |  =masscan= and =nmap= are used to perform a pingsweep and portscan. Both tools are parsed to display the no. of Alive IP addresses and no. of open ports. No further probing of open ports is performed!|
-|  2 | Default Scans                   |  This will use =masscan=, performing a dns resolution and completing a port scan. It will then run =nmap=, performing a pingsweep and port scan. The results from both tools will be stored in files and then Nmap NSE's will execute against identified open ports. |
-|  3 | Default + Dictionary Attacks    |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list. |
-|  4 | Quick Nmap Scan                 |  This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
-|  5 | Nmap & NSE Scripts              |  Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
-|  6 | Nmap pingsweep                  |  Nmap pingsweep only |
+|  2 | Quick IP scan                   |  This will use =masscan=, performing a dns resolution and completing a port scan. It will then run =nmap=, performing a pingsweep and port scan against the hosts that replied to ICMP only! |
+|  3 | Default Scan    |  IP and Port enumeration followed by running =nmap= NSE scripts to search for vulnerabilities. |
+|  4 | All                 |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list |
+|  5 | Nmap & NSE Scripts              |  =Nmap= ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
+|  6 | Nmap pingsweep                  |  =Nmap= pingsweep only |
 |  7 | Create CSV File                  |  Requires =python3=. Uses [[https://github.com/laconicwolf/Nmap-Scan-to-CSV]] to parse nmap scan results into CSV|
 
