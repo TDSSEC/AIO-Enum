@@ -20,7 +20,7 @@ then
     exit 1
 fi
 
-declare -a tools=("masscan" "dig" "curl" "nmap" "ike-scan" "nbtscan" "wfuzz")
+declare -a tools=("masscan" "dig" "curl" "nmap" "ike-scan" "nbtscan" "wfuzz" "git")
 
 # check all prerequisite tools are installed, or quit
 for tool in ${tools[*]}
@@ -106,7 +106,18 @@ parser(){
 	fi
     done
 }
-
+#nmap to CSV - requires python3
+#https://github.com/laconicwolf/Nmap-Scan-to-CSV
+csvParser(){
+    echo -e "\n[${GREEN}+${RESET}] Running ${YELLOW}parser${RESET} for ${YELLOW}NMAP XML to CSV${RESET}"
+    if ! hash python3; then
+	echo "python3 is not installed"
+	exit 1
+    else
+    	wget https://raw.githubusercontent.com/TDSSEC/Nmap-Scan-to-CSV/master/nmap_xml_parser.py 
+	$(which python3) nmap_xml_parser.py -f scans/*.xml -csv host-info.csv
+    fi
+}
 #-- summary
 summary(){
     echo -e "\n[${GREEN}+${RESET}] Generating a summary of the scans..."
@@ -133,6 +144,7 @@ help(){
 	echo "-4| --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
 	echo "-5| --nmap)    Nmap and NSE scripts - No masscan"
 	echo "-6| --icmp)    Nmap pingSweep only"
+	echo "-7| --csv)     Nmap XML to CSV"
 	echo "-h| --help)    Print this help"
 	echo "-v| --version) Print version and exit"
 }
@@ -148,6 +160,7 @@ for arg in "$@"; do
       "--all") set -- "$@" "-4" ;;
       "--nmap") set -- "$@" "-5" ;;
       "--icmp") set -- "$@" "-6" ;;
+      "--csv") set -- "$@" "-7" ;;
       "--version") set -- "$@" "-v" ;;
       *)        set -- "$@" "$arg"
     esac
@@ -155,7 +168,7 @@ done
 
 OPTIND=1 
 # getopts to parse options
-while getopts ":h123456v" flag; do
+while getopts ":h1234567v" flag; do
     case "${flag}" in
 	h) #display help
 	    help
@@ -219,6 +232,8 @@ while getopts ":h123456v" flag; do
 	    ipChecker
 	    pingSweep
 	    summaryPingSweep;;
+	7)  echo "[7] Nmap to CSV"
+	    csvParser;;
 	v)  echo "version 1.2"
 	    exit;;
 	*)  echo -e "Error: Invalid option\n"
