@@ -166,7 +166,7 @@ for arg in "$@"; do
     esac
 done
 
-OPTIND=1 
+#OPTIND=1 
 # getopts to parse options
 while getopts ":h1234567v" flag; do
     case "${flag}" in
@@ -241,7 +241,7 @@ while getopts ":h1234567v" flag; do
 	    exit 1;;
     esac
 done
-shift $(expr $OPTIND - 1)
+#shift $(expr $OPTIND - 1)
 
 if [ "$#" == "0" ]; then
 	echo -e "\n[+] No options provided!"
