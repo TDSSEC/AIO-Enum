@@ -1,7 +1,7 @@
 * What is this? 
 Another Pen Testing Enumeration Tool!
 
-Rewrite of https://gitlab.com/foresitelabs/auto_enum/
+Rewrite of https://gitlab.com/foresitelabs/auto_enum/  
 
 * Capabilities
 
@@ -19,6 +19,11 @@ Rewrite of https://gitlab.com/foresitelabs/auto_enum/
 
 *Summaries*
 - List how many IPs and unique ports/services were discovered
+
+*Nmap XML to CSV*
+- Generate a CSV file to display hosts, ports, operating systems etc.
+
+  Thanks to https://github.com/laconicwolf/Nmap-Scan-to-CSV
 
 * Prerequisites
 This script utilizes the following tools and will not run unless they are installed.
@@ -64,7 +69,7 @@ By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports =53,69,123,161
 ./aio-enum.sh -h
 #+END_SRC
 #+BEGIN_SRC 
-Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]
+Usage: ./aio-enum.sh [-][1|2|3|4|5|6|7|h|v]
 Options:
 -1 | --default) Identify Alive IPs and Ports
 -2 | --quick)   Portscan hosts replying to ICMP
@@ -72,6 +77,7 @@ Options:
 -4 | --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
 -5 | --nmap)    Nmap and NSE scripts - No masscan
 -6 | --icmp)    Nmap pingSweep only
+-7 | --csv)     Parse Nmap XML to CSV
 -h | --help)    Print this help
 -v | --version) Print version and exit
 #+END_SRC
@@ -88,3 +94,5 @@ All options will finish with a summary on the number of alive IP addresses and u
 |  4 | Quick Nmap Scan                 |  This jumps straight to Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
 |  5 | Nmap & NSE Scripts              |  Nmap ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
 |  6 | Nmap pingsweep                  |  Nmap pingsweep only |
+|  7 | Create CSV File                  |  Requires =python3=. Uses [[https://github.com/laconicwolf/Nmap-Scan-to-CSV]] to parse nmap scan results into CSV|
+
