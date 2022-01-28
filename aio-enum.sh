@@ -13,11 +13,11 @@ RESET="\033[00m"
 TCPPORTRANGE=1-65535
 UDPPORTRANGE=53,69,123,161,500,1434
 MINRATE=200
-MINHOST=500
+MINHOST=50
 MAXRATE=500
 SCANTYPE=help
 TOOLSINSTALLED=1
-OUTPUTDIR="$(pwd)/$(date +'%Y%m%d%H%M%S')"
+OUTPUTDIR="$(pwd)/$(date +'%Y-%m-%d-%H:%M')"
 
 # Sources
 SCRIPTDIR=$(dirname "$0")
@@ -30,7 +30,7 @@ then
     exit 1
 fi
 
-declare -a tools=("masscan" "dig" "curl" "nmap" "ike-scan" "nbtscan" "wfuzz" "git")
+declare -a tools=("masscan" "dig" "curl" "nmap" "ike-scan" "nbtscan" "wfuzz" "xsltproc")
 
 # check all prerequisite tools are installed, or quit
 for tool in ${tools[*]}
@@ -102,7 +102,7 @@ ipChecker(){
 ######################## Help
 #help message
 help(){
-	echo "Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]"
+	echo "Usage: ./aio-enum.sh [-1 | --default]"
 	echo "Options: "
 	echo "-1| --default) Identify Alive IPs and Ports"
 	echo "-2| --quick)   Portscan hosts replying to ICMP"
@@ -110,20 +110,19 @@ help(){
 	echo "-4| --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
 	echo "-5| --nmap)    Nmap and NSE scripts - No masscan"
 	echo "-6| --icmp)    Nmap pingSweep only"
-	echo "-7| --csv)     Nmap XML to CSV"
 	echo "-h| --help)    Print this help"
 	echo "-v| --version) Print version and exit"
-	echo ""
-	echo "--tcpportrange TCP Ports for scanning in nmap format, e.g. 1-1024,8080,8443. Default is all ports"
-	echo "--udpportrange UDP ports for scanning in nmap format, e.g. 161,500. default is 53,69,123,161,500,1434"
-	echo "--nmap-minhost Minimum hostgroup size for nmap. Default value is 500"
-	echo "--nmap-minrate Minimum rate for nmap. Default value is 200"
-	echo "--masscan-maxrate Maximum rate for masscan. Default value is 500"
-	echo "--masscan-interface Network interface that masscan should use"
-	echo "--outputdir    Output directory for all files"
+	echo -e "\nOptional Arguments: "
+	echo "--tcpportrange)      TCP Ports for scanning in nmap format, e.g. 1-1024,8080,8443. *Default is all ports"
+	echo "--udpportrange)      UDP ports for scanning in nmap format, e.g. 161,500. *Default is 53,69,123,161,500,1434"
+	echo "--nmap-minhost)      Minimum hostgroup size for nmap. *Default value is 50"
+	echo "--nmap-minrate)      Minimum rate for nmap. *Default value is 200"
+	echo "--masscan-maxrate)   Maximum rate for masscan. *Default value is 500"
+	echo "--masscan-interface) Network interface that masscan should use"
+	echo "--outputdir)         Output directory for all files"
 }
 
-declare -A longopts=([help]='' [default]='' [quick]='' [scans]='' [all]='' [nmap]='' [icmp]='' [csv]='' [version]='' [tcpportrange]=: [udpportrange]=: [nmap-minhost]=: [nmap-minrate]=: [masscan-maxrate]=: [masscan-interface]=: [outputdir]=:)
+declare -A longopts=([help]='' [default]='' [quick]='' [scans]='' [all]='' [nmap]='' [icmp]='' [version]='' [tcpportrange]=: [udpportrange]=: [nmap-minhost]=: [nmap-minrate]=: [masscan-maxrate]=: [masscan-interface]=: [outputdir]=:)
 while getopts_long longopts h1234567v opt "$@"; do
     case "$opt" in
 	    help|h)
@@ -142,10 +141,10 @@ while getopts_long longopts h1234567v opt "$@"; do
 			MASSCANINTERFACE=$OPTARG;;
 		outputdir)
 			OUTPUTDIR=$OPTARG;;
-		default|1) 
+		default|1)
 			echo "[1] selected, running a PingSweep and Portscan on all targets"
 			SCANTYPE=default;;
-		quick|2) 
+		quick|2)
 			echo "[2] selected, running Portscans on hosts that reply to ICMP"
 			SCANTYPE=quick;;
 		scans|3)
@@ -160,13 +159,10 @@ while getopts_long longopts h1234567v opt "$@"; do
 		icmp|6)
 			echo "[6] nmap pingsweep only"
 			SCANTYPE=icmp;;
-		csv|7)
-			echo "[7] Nmap to CSV"
-			SCANTYPE=csv;;
-		version|v) 
-			echo "version 1.2"
+		version|v)
+			echo "version 1.3"
 		    exit;;
-		*) 
+		*)
 			echo -e "Error: Invalid option\n"
 	    	echo "Usage: ./aio-enum.sh [-h | --help]"
 	    	exit 1;;
@@ -186,7 +182,9 @@ case $SCANTYPE in
 		nmapAllHostsPortScan
 		combiner
 		parser
-		summary;;
+		summary
+		csvParser
+		htmlParser;;
 	quick)
 		setup
 		ipChecker
@@ -196,7 +194,9 @@ case $SCANTYPE in
 		nmapPortScan
 		combiner
 #		parser
-		summary;;
+		summary
+		csvParser
+		htmlParser;;
 	scans)
 		setup
 		ipChecker
@@ -208,7 +208,9 @@ case $SCANTYPE in
 		parser
 		nse
 		otherScans
-		summary;;
+		summary
+		csvParser
+		htmlParser;;
 	all)
 		setup
 		ipChecker
@@ -221,7 +223,9 @@ case $SCANTYPE in
 		nse
 		otherScans
 		discoveryScans # for dictionary attacks
-		summary;;
+		summary
+		csvParser
+		htmlParser;;
 	nmap)
 		setup
 		ipChecker
@@ -232,27 +236,17 @@ case $SCANTYPE in
 		parser
 		nse
 		otherScans
-		summary;;
+		summary
+		csvParser
+		htmlParser;;
 	icmp)
 		setup
 		ipChecker
 		pingSweep
 		summaryPingSweep;;
-	csv)
-		setup
-		csvParser;;
 esac
 
 if [ "$#" == "0" ]; then
 	echo -e "\n[+] No options provided!"
 	help
-#	echo -e "Executing ICMP pingsweep & portscan..."
-#	ipChecker
-#	MINHOST=50
-#	MINRATE=500
-#	PORTRANGE=1-65535
-#	pingSweep
-#	summaryPingSweep
-#	nmapPortScan
-#	summary
 fi
