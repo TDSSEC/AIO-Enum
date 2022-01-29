@@ -21,10 +21,12 @@ Rewrite of https://gitlab.com/foresitelabs/auto_enum/
 - List how many IPs and unique ports/services were discovered
 
 *Nmap XML to CSV and HTML*
-- Takes the output form Nmap portscans and parsers to CSV files and HTML.
+- Takes the output form Nmap portscans and converts to CSV and HTML files.
 
 * Prerequisites
 This script utilizes the following tools and will not run unless they are installed.
+
+If it cannot detect a tool is installed, it will notify you what is missing.
 #+BEGIN_SRC 
 masscan
 dig
@@ -57,18 +59,13 @@ echo "192.168.100.5" >> exclude.ip
 #+END_SRC
 
 * Usage
-*** Running with the default settings:
 By default, =aio-enum.sh= will scan *ALL TCP* ports and UDP ports =53,69,123,161,500,1434=.
-#+BEGIN_SRC shell :results silent
-./aio-enum.sh
-#+END_SRC
-
 *** Selecting options:
 #+BEGIN_SRC shell :results silent
 ./aio-enum.sh -h
 #+END_SRC
 #+BEGIN_SRC 
-Usage: ./aio-enum.sh [-][1|2|3|4|5|6|7|h|v]
+Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]
 Options:
 -1 | --default) Identify Alive IPs and Ports
 -2 | --quick)   Portscan hosts replying to ICMP
@@ -78,6 +75,15 @@ Options:
 -6 | --icmp)    Nmap pingSweep only
 -h | --help)    Print this help
 -v | --version) Print version and exit
+
+Optional Arguments:
+--tcpportrange)      TCP Ports for scanning in nmap format, e.g. 1-1024,8080,8443. *Default is all ports"
+--udpportrange)      UDP ports for scanning in nmap format, e.g. 161,500. *Default is 53,69,123,161,500,1434"
+--nmap-minhost)      Minimum hostgroup size for nmap. *Default value is 50"
+--nmap-minrate)      Minimum rate for nmap. *Default value is 200"
+--masscan-maxrate)   Maximum rate for masscan. *Default value is 500"
+--masscan-interface) Network interface that masscan should use"
+--outputdir)         Output directory for all files"
 #+END_SRC
 
 *** Detailed Options
