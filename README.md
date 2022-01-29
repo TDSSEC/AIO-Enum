@@ -3,7 +3,7 @@ Another Pen Testing Enumeration Tool!
 
 AIO-Enum combines multiple tools to automate the majority of enumeration that is commonly performed on network security assessments & penetration tests.  
 
-**Enumeration:** - It starts by identifying hosts it can interact with using `nmap` & `masscan`, and then enumerates ports and services that are open. For example, if port 21 is open, it will now perform checks for `ftp anonymous login` & `ftp version info` on applicable hosts.
+**Enumeration:** - It starts by identifying hosts it can interact with using `nmap` & `masscan`, and then enumerates ports and services that are open. For example, if port 21 is open, it will now perform checks for `ftp anonymous login` & `ftp version info` on applicable hosts.  
 **Summary:** - After the script ends, it provides information on alive hosts and ports. Providing `CSV` and `HTML` output.
 
 ---
