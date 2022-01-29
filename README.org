@@ -20,10 +20,8 @@ Rewrite of https://gitlab.com/foresitelabs/auto_enum/
 *Summaries*
 - List how many IPs and unique ports/services were discovered
 
-*Nmap XML to CSV*
-- Generate a CSV file to display hosts, ports, operating systems etc.
-
-  Thanks to https://github.com/laconicwolf/Nmap-Scan-to-CSV
+*Nmap XML to CSV and HTML*
+- Takes the output form Nmap portscans and parsers to CSV files and HTML.
 
 * Prerequisites
 This script utilizes the following tools and will not run unless they are installed.
@@ -36,6 +34,7 @@ ike-scan
 nbtscan
 wfuzz
 dirb
+xsltproc
 #+END_SRC
 
 * Setup
@@ -77,7 +76,6 @@ Options:
 -4 | --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
 -5 | --nmap)    Nmap and NSE scripts - No masscan
 -6 | --icmp)    Nmap pingSweep only
--7 | --csv)     Parse Nmap XML to CSV
 -h | --help)    Print this help
 -v | --version) Print version and exit
 #+END_SRC
@@ -94,5 +92,3 @@ All options will finish with a summary on the number of alive IP addresses and u
 |  4 | All                 |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize =dirb= to enumerate active directories/pages based off of a word list |
 |  5 | Nmap & NSE Scripts              |  =Nmap= ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
 |  6 | Nmap pingsweep                  |  =Nmap= pingsweep only |
-|  7 | Create CSV File                  |  Requires =python3=. Uses [[https://github.com/laconicwolf/Nmap-Scan-to-CSV]] to parse nmap scan results into CSV|
-
