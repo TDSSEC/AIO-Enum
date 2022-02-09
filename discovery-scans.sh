@@ -35,7 +35,7 @@ massscanPortScan(){
             --max-rate=$MAXRATE
 }
 
-#-- nmap
+#------ nmap ---------------
 pingSweep(){
     echo -e "\n[${GREEN}+${RESET}] Running ${YELLOW}nmap${RESET} scans"
     echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap ping sweep${RESET} for all ip in targets.ip"
@@ -54,6 +54,15 @@ pingSweepDefault(){
 }
 
 # regardless of host being 'Up' from a pingsweep, run a portscan of all targets
+# No version or OS detection in this one
+nmapFastPortScan(){
+    echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap port scan${RESET} for all ip in nmap/alive.ip. No version or OS detection"
+    nmap --open -iL targets.ip \
+         -sU -sS -Pn -n -oA "$OUTPUTDIR/nmap/scans/portscan" -v \
+         -p T:$TCPPORTRANGE,U:$UDPPORTRANGE \
+         --min-hostgroup $MINHOST --min-rate=$MINRATE
+}
+
 nmapAllHostsPortScan(){
     echo -e "\n[${GREEN}+${RESET}] Running an ${YELLOW}nmap port scan${RESET} for all ip in nmap/alive.ip"
     nmap --open -iL targets.ip \
