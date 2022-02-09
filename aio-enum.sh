@@ -179,7 +179,7 @@ case $SCANTYPE in
 		nmapSettings
 		massscanPortScan
 		pingSweep
-		nmapAllHostsPortScan
+		nmapFastPortScan
 		combiner
 		parser
 		summary
