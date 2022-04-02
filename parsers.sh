@@ -42,13 +42,13 @@ parser(){
 #nmap to CSV - using style sheet and xsltproc
 csvParser(){
     echo -e "\n[${GREEN}+${RESET}] Running ${YELLOW}parser${RESET} for ${YELLOW}NMAP XML to CSV${RESET}"
-    xsltproc xml-to-csv.xsl "$OUTPUTDIR/scans/"*.xml --output "$OUTPUTDIR/csv_and_html_files/nmap-results.csv"
+    xsltproc -o "$OUTPUTDIR/csv_and_html_files/nmap-results.csv" xml-to-csv.xsl "$OUTPUTDIR/scans/"*.xml
 }
 
 #nmap to HTML using xsltproc
 htmlParser(){
     echo -e "\n[${GREEN}+${RESET}] Running ${YELLOW}parser${RESET} for ${YELLOW}NMAP XML to HTML${RESET}"
-    xsltproc "$OUTPUTDIR/scans/"*.xml -o "$OUTPUTDIR/csv_and_html_files/nmap-results.html"
+    xsltproc -o "$OUTPUTDIR/csv_and_html_files/nmap-results.html" "$OUTPUTDIR/scans/"*.xml
 }
 
 #-- summary
