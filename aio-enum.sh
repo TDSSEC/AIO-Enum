@@ -87,7 +87,7 @@ setup(){
 # Your IP Address
 ipChecker(){
     echo -e "\n ${RED}[!] ENSURE YOU ARE SOURCING FROM AN INSCOPE IP" ${RESET}
-    pubIP=$(curl -s https://ifconfig.me | cut -d '%' -f1)
+    pubIP=$(curl -s ifconfig.me/ip)
     echo -e "\nYour Public IP is: " ${RED}$pubIP${RESET}
     intIP=$(ip -o -4 addr list | grep -v '127.0.0.1'| awk ' {print $4}' | cut -d/ -f1)
     echo -e "\nYour Internal IP(s) are: " ${RED}$intIP${RESET}
