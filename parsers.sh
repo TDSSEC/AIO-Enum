@@ -68,7 +68,7 @@ summary(){
             rm -f "$OUTPUTDIR/tempports.tmp"
 	fi
     done
-    echo -e "\n[${GREEN}+${RESET}] there are $(cat "$OUTPUTDIR/alive.ip" | wc -l ) ${YELLOW}alive hosts${RESET} and $(egrep -o '[0-9]*/open/*[tcp/udp]*/' "$OUTPUTDIR/scans/"*.gnmap | cut -d ':' -f 2 | sort | uniq | wc -l) ${YELLOW}unique ports/services${RESET}" | tee -a "$OUTPUTDIR/discovered_ports.txt"
+    echo -e "\n[${GREEN}+${RESET}] there are $(cat "$OUTPUTDIR/alive.ip" | wc -l ) ${YELLOW}alive hosts${RESET} and $(egrep -o '[0-9]*/open/*[tcp/udp]*/' "$OUTPUTDIR/scans/"*.gnmap | cut -d ':' -f 3 | sort | uniq | wc -l) ${YELLOW}unique ports/services${RESET}" | tee -a "$OUTPUTDIR/discovered_ports.txt"
 }
 
 summaryPingSweep(){
