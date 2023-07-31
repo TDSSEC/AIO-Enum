@@ -34,10 +34,22 @@ xsltproc
 ```
 # First run `aio-enum.sh`
 sudo ./aio-enum.sh
-
+```
+```
 # Next populate the `targets.ip` file
 echo "192.168.100.0/24" >> targets.ip
+```
+The list of targets should each be on a new line as such:  
+```
+x.x.x.x  
+y.y.y.y/32  
+domain  
+```
 
+If you have a list of targets in comma separated lists, paste them into `targets.ip` and then run the below to remove the commas and put each IP onto a new line:  
+`cat targets.ip| tr ',' '\n' | tr -d "^ " | tee targets.ip`
+
+```
 # Next populate the `exclude.ip` file
 echo "192.168.100.5" >> exclude.ip
 ```
@@ -52,7 +64,7 @@ By default, **aio-enum.sh** will scan **ALL TCP** ports and UDP ports =53,69,123
 Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]
 Options:
 -1 | --default) Identify Alive IPs and Ports
--2 | --quick)   Portscan hosts replying to ICMP
+-2 | --quick)   Portscan only the hosts that respond to an ICMP pingsweep.
 -3 | --scans)   Masscan, Nmap and Nmap NSE scripts
 -4 | --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
 -5 | --nmap)    Nmap and NSE scripts - No masscan
@@ -63,6 +75,8 @@ Options:
 Optional Arguments:
 --tcpportrange)      TCP Ports for scanning in nmap format, e.g. 1-1024,8080,8443. *Default is all ports"
 --udpportrange)      UDP ports for scanning in nmap format, e.g. 161,500. *Default is 53,69,123,161,500,1434"
+--top100)      	     Top 100 most common TCP Ports *Default is all ports"
+--top1000)      	   Top 1000 most common TCP Ports *Default is all ports"
 --nmap-minhost)      Minimum hostgroup size for nmap. *Default value is 50"
 --nmap-minrate)      Minimum rate for nmap. *Default value is 200"
 --masscan-maxrate)   Maximum rate for masscan. *Default value is 500"
