@@ -108,7 +108,7 @@ help(){
 	echo "-2| --quick)   Portscan hosts replying to ICMP"
 	echo "-3| --scans)   Masscan, Nmap and Nmap NSE scripts"
 	echo "-4| --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum"
-	echo "-5| --nmap)    Nmap and NSE scripts - No masscan"
+	echo "-5| --nmap)    Nmap and NSE scripts - No masscan. Tests hosts whether they reply to ICMP or not."
 	echo "-6| --icmp)    Nmap pingSweep only"
 	echo "-h| --help)    Print this help"
 	echo "-v| --version) Print version and exit"
@@ -237,7 +237,7 @@ case $SCANTYPE in
 		ipChecker
 		nmapSettings
 		pingSweep
-		nmapPortScan
+		nmapAllHostsPortScan
 		combiner
 		parser
 		nse
