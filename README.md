@@ -26,14 +26,13 @@ curl
 nmap
 ike-scan
 nbtscan
-wfuzz
 dirb
 xsltproc
 ```
 ### Setup
 ```
-# First run `aio-enum.sh`
-sudo ./aio-enum.sh
+# First run `aio_enum.py`
+sudo python3 aio_enum.py --help
 ```
 ```
 # Next populate the `targets.ip` file
@@ -55,34 +54,43 @@ echo "192.168.100.5" >> exclude.ip
 ```
 
 ## 2. Usage
-By default, **aio-enum.sh** will scan **ALL TCP** ports and UDP ports =53,69,123,161,500,1434=.
-**Selecting options:**
+By default, **aio_enum.py** will scan **ALL TCP** ports and UDP ports `53,69,123,161,500,1434`.
+Run the following to view the available options:
 ```
-./aio-enum.sh -h
+python3 aio_enum.py -h
 ```
 ```
-Usage: ./aio-enum.sh [-][1|2|3|4|5|6|h|v]
-Options:
--1 | --default) Identify Alive IPs and Ports
--2 | --quick)   Portscan only the hosts that respond to an ICMP pingsweep.
--3 | --scans)   Masscan, Nmap and Nmap NSE scripts
--4 | --all)     Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
--5 | --nmap)    Nmap and NSE scripts - No masscan
--6 | --icmp)    Nmap pingSweep only
--h | --help)    Print this help
--v | --version) Print version and exit
+usage: python aio_enum.py [options]
 
-Optional Arguments:
---tcpportrange)      TCP Ports for scanning in nmap format, e.g. 1-1024,8080,8443. *Default is all ports"
---udpportrange)      UDP ports for scanning in nmap format, e.g. 161,500. *Default is 53,69,123,161,500,1434"
---top100)      	     Top 100 most common TCP Ports *Default is all ports"
---top1000)      	   Top 1000 most common TCP Ports *Default is all ports"
---nmap-minhost)      Minimum hostgroup size for nmap. *Default value is 50"
---nmap-minrate)      Minimum rate for nmap. *Default value is 200"
---masscan-maxrate)   Maximum rate for masscan. *Default value is 500"
---masscan-interface) Network interface that masscan should use"
---outputdir)         Output directory for all files"
+Python rewrite of AIO-Enum
+
+options:
+  -h, --help            show this help message and exit
+  -1, --default         Identify Alive IPs and Ports
+  -2, --quick           Portscan hosts replying to ICMP
+  -3, --scans           Masscan, Nmap and Nmap NSE scripts
+  -4, --all             Masscan, Nmap, Nmap NSE scripts and Web dir/page enum
+  -5, --nmap            Nmap and NSE scripts - No masscan
+  -6, --icmp            Nmap ping sweep only
+  -v, --version         Print version and exit
+  --tcpportrange TCPPORTRANGE
+                        TCP port range in nmap format
+  --top100              Top 100 most common TCP Ports
+  --top1000             Top 1000 most common TCP Ports
+  --udpportrange UDPPORTRANGE
+                        UDP port range in nmap format
+  --nmap-minhost NMAP_MINHOST
+                        Minimum hostgroup size for nmap
+  --nmap-minrate NMAP_MINRATE
+                        Minimum rate for nmap
+  --masscan-maxrate MASSCAN_MAXRATE
+                        Maximum rate for masscan
+  --masscan-interface MASSCAN_INTERFACE
+                        Network interface that masscan should use
+  --outputdir OUTPUTDIR
+                        Output directory for all files
 ```
+
 
 ## 3. Scan Details
 All options that utilise nmap portscan functionality will finish with a CSV and HTML file being accessible.  
