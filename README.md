@@ -89,13 +89,12 @@ options:
                         Network interface that masscan should use
   --outputdir OUTPUTDIR
                         Output directory for all files
-  --nessus-file NESSUS_FILE
-                        Path to a Nessus .nessus report for validation
+
 ```
 
 
 ## 3. Scan Details
-All options that utilise nmap portscan functionality will finish with a CSV and HTML file being accessible.  
+All options that utilise nmap portscan functionality will finish with a CSV and HTML file being accessible.
 All options will provide a summary on the number of alive IP addresses and unique ports that are open.
 |              Option | Usage            | Detail                           |
 |---------------------|-------------------|-----------------------------------------|
@@ -106,12 +105,3 @@ All options will provide a summary on the number of alive IP addresses and uniqu
 |  5 | Nmap & NSE Scripts              |  `Nmap` ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
 |  6 | Nmap pingsweep                  |  `Nmap` pingsweep only |
 
-### Validating Nessus findings
-
-Export the assessment results from Nessus as a `.nessus` file and provide the path when running AIO-Enum:
-
-```
-python3 aio_enum.py --nessus-file /path/to/scan.nessus -1
-```
-
-When supplied, the tool parses the report, compares the hosts and ports against the discovery data (such as `alive.ip` and the `open-ports/` directory), and writes structured CSV/JSON outputs to `<output-directory>/nessus/`. Any discrepancies are highlighted in the console summary and the generated files.

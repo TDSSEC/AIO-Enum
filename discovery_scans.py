@@ -198,15 +198,19 @@ def _nmap_port_command(
 
 
 def nmap_fast_port_scan(config: ScanConfig) -> None:
-    """Run an nmap TCP/UDP port scan without service or OS detection."""
+    """Run an nmap TCP/UDP port scan, preferring alive hosts without service or OS detection."""
 
+    alive_file = config.output_dir / "nmap" / "alive.ip"
+    alive_exists = alive_file.exists()
+    target = alive_file if alive_exists else config.targets_file
+    target_desc = "nmap/alive.ip" if alive_exists else "targets.ip"
     print(
         f"\n[{colour_text('+', COLOURS.green)}] Running an {colour_text('nmap port scan', COLOURS.yellow)}"
-        " for all ip in nmap/alive.ip. No version or OS detection"
+        f" for all ip in {target_desc}. No version or OS detection"
     )
     command = _nmap_port_command(
         config,
-        target_file=config.targets_file,
+        target_file=target,
         enable_version=False,
         enable_os=False,
     )
@@ -214,15 +218,19 @@ def nmap_fast_port_scan(config: ScanConfig) -> None:
 
 
 def nmap_all_hosts_port_scan(config: ScanConfig) -> None:
-    """Run an nmap port scan (including service/OS detection) against all targets."""
+    """Run an nmap port scan (including service/OS detection) against alive targets when available."""
 
+    alive_file = config.output_dir / "nmap" / "alive.ip"
+    alive_exists = alive_file.exists()
+    target = alive_file if alive_exists else config.targets_file
+    target_desc = "nmap/alive.ip" if alive_exists else "targets.ip"
     print(
         f"\n[{colour_text('+', COLOURS.green)}] Running an {colour_text('nmap port scan', COLOURS.yellow)}"
-        " for all ip in nmap/alive.ip"
+        f" for all ip in {target_desc}"
     )
     command = _nmap_port_command(
         config,
-        target_file=config.targets_file,
+        target_file=target,
         enable_version=True,
         enable_os=True,
     )

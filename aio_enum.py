@@ -146,7 +146,6 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--masscan-maxrate", type=int, default=500, help="Maximum rate for masscan")
     parser.add_argument("--masscan-interface", help="Network interface that masscan should use")
     parser.add_argument("--outputdir", help="Output directory for all files")
-    parser.add_argument("--nessus-file", help="Path to a Nessus .nessus report for validation")
     return parser.parse_args(argv)
 
 
@@ -179,7 +178,6 @@ def build_config(args: argparse.Namespace) -> Tuple[ScanConfig, str]:
         nmap_min_rate=args.nmap_minrate,
         masscan_max_rate=args.masscan_maxrate,
         masscan_interface=args.masscan_interface,
-        nessus_file=nessus_file,
     )
     scantype = args.scantype or "help"
     return config, scantype
