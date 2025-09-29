@@ -19,4 +19,6 @@ class ScanConfig:
     nmap_min_rate: int
     masscan_max_rate: int
     masscan_interface: str | None
+    nessus_file: Path | None = None
+    allow_unsafe_nse: bool = False
 
