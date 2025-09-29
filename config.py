@@ -19,4 +19,5 @@ class ScanConfig:
     nmap_min_rate: int
     masscan_max_rate: int
     masscan_interface: str | None
+    allow_unsafe_nse: bool
 
