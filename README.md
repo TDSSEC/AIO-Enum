@@ -89,9 +89,7 @@ options:
                         Network interface that masscan should use
   --outputdir OUTPUTDIR
                         Output directory for all files
-  --allow-unsafe-nse    Run the legacy NSE script allowlist, which includes
-                        intrusive checks. Defaults to running only scripts
-                        marked safe by Nmap.
+
 ```
 
 
@@ -107,11 +105,3 @@ All options will provide a summary on the number of alive IP addresses and uniqu
 |  5 | Nmap & NSE Scripts              |  `Nmap` ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
 |  6 | Nmap pingsweep                  |  `Nmap` pingsweep only |
 
-### NSE Script Safety
-
-By default the Python rewrite executes only NSE scripts that the Nmap project
-categorises as **safe**. Service-specific checks that remain in the default
-profile (for example `ssh2-enum-algos` and `pop3-capabilities`) are documented
-inline in the source because they are explicitly tagged as safe upstream. To run
-the broader, legacy script set — which includes intrusive vulnerability probes —
-invoke `aio_enum.py` with `--allow-unsafe-nse`.

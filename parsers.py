@@ -2,6 +2,9 @@
 """Parsers and reporting helpers for the Python rewrite of AIO-Enum."""
 from __future__ import annotations
 
+import csv
+import json
+import xml.etree.ElementTree as ET
 from collections import defaultdict
 from pathlib import Path
 from shutil import copy2
@@ -154,6 +157,192 @@ def html_parser(config: ScanConfig) -> None:
             str(xml_files[0]),
         ]
     )
+
+
+def parse_nessus_report(config: ScanConfig, host_ports: dict[str, set[str]]) -> None:
+    """Parse a Nessus report and compare the findings with discovery data."""
+
+    if not config.nessus_file:
+        return
+
+    nessus_path = config.nessus_file
+    print(
+        f"\n[{colour_text('+', COLOURS.green)}] Running {colour_text('parser', COLOURS.yellow)} for "
+        f"{colour_text('Nessus report correlation', COLOURS.yellow)}"
+    )
+
+    if not nessus_path.exists():
+        print(
+            f"[{colour_text('!', COLOURS.red)}] Nessus file {colour_text(str(nessus_path), COLOURS.yellow)} "
+            "was not found. Skipping Nessus parsing."
+        )
+        return
+
+    try:
+        tree = ET.parse(nessus_path)
+        root = tree.getroot()
+    except ET.ParseError as exc:
+        print(
+            f"[{colour_text('!', COLOURS.red)}] Unable to parse Nessus report: {colour_text(str(exc), COLOURS.yellow)}"
+        )
+        return
+
+    alive_hosts = set(_hosts_from_file(config.output_dir / "alive.ip"))
+    normalised_host_ports = {
+        host: {entry.lower() for entry in ports}
+        for host, ports in host_ports.items()
+    }
+
+    findings: list[dict[str, object]] = []
+    host_discovery_status: dict[str, bool] = {}
+    hosts_in_report: set[str] = set()
+
+    for report_host in root.findall(".//ReportHost"):
+        host_name = (report_host.get("name") or "").strip()
+        host_ip = host_name
+        for tag in report_host.findall("./HostProperties/tag"):
+            if tag.get("name") == "host-ip" and tag.text:
+                host_ip = tag.text.strip()
+                break
+
+        identifiers: list[str] = []
+        for candidate in (host_ip, host_name):
+            if candidate and candidate not in identifiers:
+                identifiers.append(candidate)
+
+        canonical_host = identifiers[0] if identifiers else "unknown"
+        hosts_in_report.add(canonical_host)
+
+        host_alive = any(identifier in alive_hosts for identifier in identifiers)
+        if canonical_host not in host_discovery_status:
+            host_discovery_status[canonical_host] = host_alive
+        else:
+            host_discovery_status[canonical_host] = (
+                host_discovery_status[canonical_host] or host_alive
+            )
+        for report_item in report_host.findall("./ReportItem"):
+            port_raw = (report_item.get("port") or "").strip()
+            protocol = (report_item.get("protocol") or "").strip().lower()
+            service = (report_item.get("svc_name") or "").strip()
+            plugin_id = (report_item.get("pluginID") or "").strip()
+            plugin_name = (report_item.get("pluginName") or "").strip()
+            severity_raw = (report_item.get("severity") or "").strip()
+            risk_factor = (report_item.findtext("risk_factor") or "").strip()
+
+            try:
+                port_int = int(port_raw)
+            except ValueError:
+                port_int = None
+
+            port_value = str(port_int) if port_int is not None else port_raw
+            port_proto = f"{port_value}/{protocol}" if protocol else port_value
+            port_proto_normalised = port_proto.lower()
+
+            host_port_confirmed = False
+            for identifier in identifiers:
+                if (
+                    identifier in normalised_host_ports
+                    and port_proto_normalised in normalised_host_ports[identifier]
+                ):
+                    host_port_confirmed = True
+                    break
+
+            severity: int | None
+            try:
+                severity = int(severity_raw)
+            except ValueError:
+                severity = None
+
+            notes: list[str] = []
+            if not host_alive:
+                notes.append("Host not present in discovery data (alive.ip)")
+            if not host_port_confirmed and protocol:
+                notes.append("Port/protocol not found in discovery data (open-ports)")
+            elif not host_port_confirmed:
+                notes.append("Port not found in discovery data (open-ports)")
+
+            finding = {
+                "host": canonical_host,
+                "host_aliases": identifiers,
+                "port": port_int if port_int is not None else port_value,
+                "protocol": protocol,
+                "service": service,
+                "severity": severity,
+                "risk_factor": risk_factor,
+                "plugin_id": plugin_id,
+                "plugin_name": plugin_name,
+                "in_alive": host_alive,
+                "port_confirmed": host_port_confirmed,
+                "notes": notes,
+            }
+            findings.append(finding)
+
+    nessus_output_dir = config.output_dir / "nessus"
+    nessus_output_dir.mkdir(parents=True, exist_ok=True)
+
+    json_path = nessus_output_dir / "nessus-findings.json"
+    with json_path.open("w", encoding="utf-8") as handle:
+        json.dump(findings, handle, indent=2)
+
+    csv_path = nessus_output_dir / "nessus-findings.csv"
+    csv_fields = [
+        "host",
+        "host_aliases",
+        "port",
+        "protocol",
+        "service",
+        "severity",
+        "risk_factor",
+        "plugin_id",
+        "plugin_name",
+        "in_alive",
+        "port_confirmed",
+        "notes",
+    ]
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=csv_fields)
+        writer.writeheader()
+        for finding in findings:
+            writer.writerow(
+                {
+                    "host": finding["host"],
+                    "host_aliases": ", ".join(finding["host_aliases"]),
+                    "port": finding["port"],
+                    "protocol": finding["protocol"],
+                    "service": finding["service"],
+                    "severity": finding["severity"],
+                    "risk_factor": finding["risk_factor"],
+                    "plugin_id": finding["plugin_id"],
+                    "plugin_name": finding["plugin_name"],
+                    "in_alive": finding["in_alive"],
+                    "port_confirmed": finding["port_confirmed"],
+                    "notes": "; ".join(finding["notes"]),
+                }
+            )
+
+    total_hosts = len(hosts_in_report)
+    confirmed_hosts = sum(1 for alive in host_discovery_status.values() if alive)
+    missing_hosts = [host for host, alive in host_discovery_status.items() if not alive]
+    total_findings = len(findings)
+    discrepancy_findings = sum(1 for finding in findings if finding["notes"])
+
+    print(
+        f"[{colour_text('+', COLOURS.green)}] Parsed {colour_text(str(total_findings), COLOURS.yellow)} findings "
+        f"across {colour_text(str(total_hosts), COLOURS.yellow)} hosts."
+    )
+    print(
+        f"[{colour_text('+', COLOURS.green)}] {colour_text(str(confirmed_hosts), COLOURS.yellow)} hosts confirmed by "
+        f"discovery data; {colour_text(str(len(missing_hosts)), COLOURS.yellow)} hosts missing from alive.ip."
+    )
+    print(
+        f"[{colour_text('+', COLOURS.green)}] {colour_text(str(discrepancy_findings), COLOURS.yellow)} findings "
+        "flagged for review."
+    )
+    if missing_hosts:
+        print(
+            f"[{colour_text('!', COLOURS.red)}] Hosts missing from discovery data: "
+            f"{colour_text(', '.join(sorted(missing_hosts)), COLOURS.yellow)}"
+        )
 
 
 def summary(config: ScanConfig, host_ports: dict[str, set[str]]) -> None:
