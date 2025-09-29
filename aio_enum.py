@@ -22,7 +22,12 @@ from discovery_scans import (
     nmap_settings,
     ping_sweep,
 )
-from nmap_nse_scans import discovery_scans, nse, other_scans
+from nmap_nse_scans import (
+    discovery_scans,
+    nse,
+    other_scans,
+    service_validation,
+)
 from parsers import (
     combiner,
     csv_parser,
@@ -44,6 +49,7 @@ TOOLS = [
     "ike-scan",
     "nbtscan",
     "dirb",
+    "hping3",
     "xsltproc",
 ]
 
@@ -153,6 +159,11 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Enable intrusive NSE script allowlist",
     )
+    parser.add_argument(
+        "--validate-services",
+        action="store_true",
+        help="Run extended service validation and enumeration tasks",
+    )
     return parser.parse_args(argv)
 
 
@@ -187,6 +198,7 @@ def build_config(args: argparse.Namespace) -> Tuple[ScanConfig, str]:
         masscan_interface=args.masscan_interface,
         nessus_file=nessus_file,
         allow_unsafe_nse=args.allow_unsafe_nse,
+        validate_services=args.validate_services,
     )
     scantype = args.scantype or "help"
     return config, scantype
@@ -228,6 +240,8 @@ def execute_scans(config: ScanConfig, scantype: str) -> None:
     if scantype in {"scans", "all", "nmap"}:
         nse(config)
         other_scans(config)
+    if config.validate_services:
+        service_validation(config)
     if scantype == "all":
         discovery_scans(config)
 

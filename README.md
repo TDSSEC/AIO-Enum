@@ -27,6 +27,7 @@ nmap
 ike-scan
 nbtscan
 dirb
+hping3
 xsltproc
 ```
 ### Setup
@@ -89,6 +90,10 @@ options:
                         Network interface that masscan should use
   --outputdir OUTPUTDIR
                         Output directory for all files
+  --nessus-file NESSUS_FILE
+                        Path to a Nessus report for correlation
+  --allow-unsafe-nse    Enable intrusive NSE script allowlist
+  --validate-services   Run extended service validation and enumeration tasks
 
 ```
 

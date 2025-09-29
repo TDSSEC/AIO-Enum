@@ -21,4 +21,5 @@ class ScanConfig:
     masscan_interface: str | None
     nessus_file: Path | None = None
     allow_unsafe_nse: bool = False
+    validate_services: bool = False
 
