@@ -15,7 +15,13 @@ class NmapTask:
     description: str
     port_file: str
     output_name: str
-    arguments: Sequence[str]
+    safe_arguments: Sequence[str]
+    unsafe_arguments: Sequence[str] | None = None
+
+    def arguments(self, allow_unsafe: bool) -> Sequence[str]:
+        if allow_unsafe and self.unsafe_arguments:
+            return self.unsafe_arguments
+        return self.safe_arguments
 
 
 def _hosts_from_file(path: Path) -> list[str]:
@@ -35,7 +41,7 @@ def _run_nmap_task(config: ScanConfig, task: NmapTask) -> None:
     )
     command = [
         "nmap",
-        *task.arguments,
+        *task.arguments(config.allow_unsafe_nse),
         "-iL",
         str(hosts_path),
         "-oN",
@@ -50,14 +56,20 @@ def _run_nmap_task(config: ScanConfig, task: NmapTask) -> None:
 
 
 def nse(config: ScanConfig) -> None:
-    """Execute targeted NSE scans for high-value ports."""
+    """Execute targeted NSE scans for high-value ports.
+
+    Only scripts tagged safe by the upstream Nmap project are executed by
+    default. Setting ``config.allow_unsafe_nse`` re-enables the legacy,
+    intrusive allowlist.
+    """
 
     tasks = [
         NmapTask(
             description="running scans for port",
             port_file="21.txt",
             output_name="ftp.txt",
-            arguments=[
+            safe_arguments=["-sC", "-sV", "-p", "21", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -69,19 +81,20 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "22.txt",
             "ssh.txt",
-            [
+            safe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
                 "22",
-                "--script=ssh2-enum-algos",
+                "--script=ssh2-enum-algos",  # Tagged "safe" upstream.
             ],
         ),
         NmapTask(
             "running scans for port",
             "23.txt",
             "telnet.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "23", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -93,7 +106,8 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "25.txt",
             "smtp.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "25", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -107,7 +121,8 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "53.txt",
             "dns.txt",
-            [
+            safe_arguments=["-sU", "-p", "53", "--script=safe"],
+            unsafe_arguments=[
                 "-sU",
                 "-p",
                 "53",
@@ -120,7 +135,8 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "80.txt",
             "http.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "80", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -132,25 +148,39 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "110.txt",
             "pop3.txt",
-            ["-sC", "-sV", "-p", "110", "--script=pop3-capabilities"],
+            safe_arguments=[
+                "-sC",
+                "-sV",
+                "-p",
+                "110",
+                "--script=pop3-capabilities",  # Tagged "safe" upstream.
+            ],
         ),
         NmapTask(
             "running scans for port",
             "111.txt",
             "nfs111.txt",
-            ["-sV", "-p", "111", "--script=nfs-showmount,nfs-ls"],
+            safe_arguments=["-sV", "-p", "111", "--script=safe"],
+            unsafe_arguments=["-sV", "-p", "111", "--script=nfs-showmount,nfs-ls"],
         ),
         NmapTask(
             "running scans for port",
             "123.txt",
             "ntp.txt",
-            ["-sU", "-p", "123", "--script=ntp-info,ntp-monlist"],
+            safe_arguments=[
+                "-sU",
+                "-p",
+                "123",
+                "--script=ntp-info",  # Tagged "safe" upstream.
+            ],
+            unsafe_arguments=["-sU", "-p", "123", "--script=ntp-info,ntp-monlist"],
         ),
         NmapTask(
             "running scans for port",
             "161.txt",
             "snmp.txt",
-            [
+            safe_arguments=["-sC", "-sU", "-p", "161", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sU",
                 "-p",
@@ -162,7 +192,8 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "443.txt",
             "https.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "443", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -181,35 +212,41 @@ def nse(config: ScanConfig) -> None:
         print(
             f"\n[{colour_text('+', COLOURS.green)}] running scans for port {colour_text('443', COLOURS.yellow)}"
         )
-        run_command(
-            [
-                "nmap",
-                "-sC",
-                "-sV",
-                "-p",
-                "443",
-                "-iL",
-                str(config.output_dir / "open-ports" / "443.txt"),
-                "--version-light",
-                "--script=ssl-poodle,ssl-heartbleed,ssl-enum-ciphers,ssl-cert-intaddr",
-                "--script-args",
-                "vulns.showall",
-                "-oN",
-                str(config.output_dir / "nse_scans" / "ssl.txt"),
-                "--stats-every",
-                "60s",
-                "--min-hostgroup",
-                str(config.nmap_min_host),
-                f"--min-rate={config.nmap_min_rate}",
-            ]
+        ssl_script = (
+            "--script=ssl-poodle,ssl-heartbleed,ssl-enum-ciphers,ssl-cert-intaddr"
+            if config.allow_unsafe_nse
+            else "--script=ssl-cert,ssl-enum-ciphers"
         )
+        # ssl-cert and ssl-enum-ciphers are both tagged as safe in Nmap's script database.
+        ssl_command = [
+            "nmap",
+            "-sC",
+            "-sV",
+            "-p",
+            "443",
+            "-iL",
+            str(config.output_dir / "open-ports" / "443.txt"),
+            "--version-light",
+            ssl_script,
+            "-oN",
+            str(config.output_dir / "nse_scans" / "ssl.txt"),
+            "--stats-every",
+            "60s",
+            "--min-hostgroup",
+            str(config.nmap_min_host),
+            f"--min-rate={config.nmap_min_rate}",
+        ]
+        if config.allow_unsafe_nse:
+            ssl_command.extend(["--script-args", "vulns.showall"])
+        run_command(ssl_command)
 
     additional_tasks = [
         NmapTask(
             "running scans for port",
             "445.txt",
             "smb.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "445", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -221,19 +258,22 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "1521.txt",
             "oracle.txt",
-            ["-p", "1521-1560", "--script=oracle-sid-brute"],
+            safe_arguments=["-sV", "-p", "1521", "--script=safe"],
+            unsafe_arguments=["-p", "1521-1560", "--script=oracle-sid-brute"],
         ),
         NmapTask(
             "running scans for port",
             "2049.txt",
             "nfs2049.txt",
-            ["-sV", "-p", "2049", "--script=nfs-showmount,nfs-ls"],
+            safe_arguments=["-sV", "-p", "2049", "--script=safe"],
+            unsafe_arguments=["-sV", "-p", "2049", "--script=nfs-showmount,nfs-ls"],
         ),
         NmapTask(
             "running scans for port",
             "3306.txt",
             "mysql.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "3306", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -247,13 +287,15 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "5900.txt",
             "vnc.txt",
-            ["-sC", "-sV", "-p", "5900", "--script=banner,vnc-title"],
+            safe_arguments=["-sC", "-sV", "-p", "5900", "--script=safe"],
+            unsafe_arguments=["-sC", "-sV", "-p", "5900", "--script=banner,vnc-title"],
         ),
         NmapTask(
             "running scans for port",
             "8080.txt",
             "http8080.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "8080", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -265,7 +307,8 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "8443.txt",
             "https8443.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "8443", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -277,7 +320,8 @@ def nse(config: ScanConfig) -> None:
             "running scans for port",
             "27017.txt",
             "mongodb.txt",
-            [
+            safe_arguments=["-sC", "-sV", "-p", "27017", "--script=safe"],
+            unsafe_arguments=[
                 "-sC",
                 "-sV",
                 "-p",
@@ -307,7 +351,7 @@ def other_scans(config: ScanConfig) -> None:
                 "500",
                 "-iL",
                 str(config.output_dir / "open-ports" / "500.txt"),
-                "--script=ike-version",
+                "--script=ike-version",  # Tagged "safe" upstream.
                 "-oN",
                 str(config.output_dir / "nse_scans" / "ike.txt"),
                 "--stats-every",

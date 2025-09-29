@@ -138,6 +138,14 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--masscan-maxrate", type=int, default=500, help="Maximum rate for masscan")
     parser.add_argument("--masscan-interface", help="Network interface that masscan should use")
     parser.add_argument("--outputdir", help="Output directory for all files")
+    parser.add_argument(
+        "--allow-unsafe-nse",
+        action="store_true",
+        help=(
+            "Run the legacy NSE script allowlist, which includes intrusive checks."
+            " Defaults to running only scripts marked safe by Nmap."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -164,6 +172,7 @@ def build_config(args: argparse.Namespace) -> Tuple[ScanConfig, str]:
         nmap_min_rate=args.nmap_minrate,
         masscan_max_rate=args.masscan_maxrate,
         masscan_interface=args.masscan_interface,
+        allow_unsafe_nse=args.allow_unsafe_nse,
     )
     scantype = args.scantype or "help"
     return config, scantype
