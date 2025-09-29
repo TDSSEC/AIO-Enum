@@ -89,6 +89,8 @@ options:
                         Network interface that masscan should use
   --outputdir OUTPUTDIR
                         Output directory for all files
+  --nessus-file NESSUS_FILE
+                        Path to a Nessus .nessus report for validation
 ```
 
 
@@ -103,3 +105,13 @@ All options will provide a summary on the number of alive IP addresses and uniqu
 |  4 | All                 |  This performs the same as the above option, but also allows for brute force and dictionary attacks. For example, port 80 being open will utilize `dirb` to enumerate active directories/pages based off of a word list |
 |  5 | Nmap & NSE Scripts              |  `Nmap` ping sweep + port scan and finishes with NSE scripts. No dictionary attacks. |
 |  6 | Nmap pingsweep                  |  `Nmap` pingsweep only |
+
+### Validating Nessus findings
+
+Export the assessment results from Nessus as a `.nessus` file and provide the path when running AIO-Enum:
+
+```
+python3 aio_enum.py --nessus-file /path/to/scan.nessus -1
+```
+
+When supplied, the tool parses the report, compares the hosts and ports against the discovery data (such as `alive.ip` and the `open-ports/` directory), and writes structured CSV/JSON outputs to `<output-directory>/nessus/`. Any discrepancies are highlighted in the console summary and the generated files.

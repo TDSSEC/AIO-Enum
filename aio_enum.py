@@ -22,7 +22,15 @@ from discovery_scans import (
     ping_sweep,
 )
 from nmap_nse_scans import discovery_scans, nse, other_scans
-from parsers import combiner, csv_parser, html_parser, port_parser, summary, summary_ping_sweep
+from parsers import (
+    combiner,
+    csv_parser,
+    html_parser,
+    parse_nessus_report,
+    port_parser,
+    summary,
+    summary_ping_sweep,
+)
 from top_ports_data import TOP_100, TOP_1000
 from utils import COLOURS, abort, colour_text, ensure_tools_installed, run_command
 
@@ -138,6 +146,7 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--masscan-maxrate", type=int, default=500, help="Maximum rate for masscan")
     parser.add_argument("--masscan-interface", help="Network interface that masscan should use")
     parser.add_argument("--outputdir", help="Output directory for all files")
+    parser.add_argument("--nessus-file", help="Path to a Nessus .nessus report for validation")
     return parser.parse_args(argv)
 
 
@@ -154,6 +163,12 @@ def build_config(args: argparse.Namespace) -> Tuple[ScanConfig, str]:
 
     output_dir = Path(args.outputdir).expanduser().resolve() if args.outputdir else Path.cwd() / dt.datetime.now().strftime("%Y-%m-%d-%H:%M")
 
+    nessus_file = (
+        Path(args.nessus_file).expanduser().resolve()
+        if args.nessus_file
+        else None
+    )
+
     config = ScanConfig(
         output_dir=output_dir,
         targets_file=Path("targets.ip").resolve(),
@@ -164,6 +179,7 @@ def build_config(args: argparse.Namespace) -> Tuple[ScanConfig, str]:
         nmap_min_rate=args.nmap_minrate,
         masscan_max_rate=args.masscan_maxrate,
         masscan_interface=args.masscan_interface,
+        nessus_file=nessus_file,
     )
     scantype = args.scantype or "help"
     return config, scantype
@@ -211,6 +227,8 @@ def execute_scans(config: ScanConfig, scantype: str) -> None:
     summary(config, host_ports)
     csv_parser(config)
     html_parser(config)
+    if config.nessus_file:
+        parse_nessus_report(config, host_ports)
 
 
 def main(argv: list[str] | None = None) -> None:
