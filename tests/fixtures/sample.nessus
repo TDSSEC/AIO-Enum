@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NessusClientData_v2>
+  <Report name="Example Report">
+    <ReportHost name="example.local">
+      <HostProperties>
+        <tag name="host-ip">192.0.2.10</tag>
+      </HostProperties>
+      <ReportItem port="80" protocol="tcp" svc_name="http" pluginID="100" pluginName="Informational Plugin" severity="0">
+        <risk_factor>None</risk_factor>
+      </ReportItem>
+      <ReportItem port="443" protocol="tcp" svc_name="https" pluginID="101" pluginName="Low Plugin" severity="1">
+        <risk_factor>Low</risk_factor>
+      </ReportItem>
+      <ReportItem port="22" protocol="tcp" svc_name="ssh" pluginID="102" pluginName="Medium Plugin">
+        <risk_factor>Medium</risk_factor>
+      </ReportItem>
+      <ReportItem port="25" protocol="tcp" svc_name="smtp" pluginID="103" pluginName="High Plugin" severity="3">
+        <risk_factor>High</risk_factor>
+      </ReportItem>
+      <ReportItem port="3389" protocol="tcp" svc_name="rdp" pluginID="104" pluginName="Critical Plugin" severity="4">
+        <risk_factor>Critical</risk_factor>
+      </ReportItem>
+    </ReportHost>
+  </Report>
+</NessusClientData_v2>
