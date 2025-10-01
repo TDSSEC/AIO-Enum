@@ -14,6 +14,18 @@ from config import ScanConfig
 from utils import COLOURS, colour_text, run_command
 
 
+NESSUS_RISK_FACTOR_TO_SEVERITY = {
+    "critical": 4,
+    "high": 3,
+    "medium": 2,
+    "moderate": 2,
+    "low": 1,
+    "info": 0,
+    "informational": 0,
+    "none": 0,
+}
+
+
 def _hosts_from_file(path: Path) -> list[str]:
     if not path.exists():
         return []
@@ -252,6 +264,13 @@ def parse_nessus_report(config: ScanConfig, host_ports: dict[str, set[str]]) -> 
                 severity = int(severity_raw)
             except ValueError:
                 severity = None
+
+            if severity is None:
+                risk_factor_normalised = risk_factor.lower()
+                severity = NESSUS_RISK_FACTOR_TO_SEVERITY.get(risk_factor_normalised)
+
+            if severity is None or severity not in {1, 2, 3, 4}:
+                continue
 
             notes: list[str] = []
             if not host_alive:
